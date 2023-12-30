@@ -56,19 +56,10 @@ pipeline {
                     git config user.email "abhishek.xyz@gmail.com"
                     git config user.name "abhishek veeramalla"
                     BUILD_NUMBER=${BUILD_NUMBER}
-                   // Make changes to the file directly in Groovy
-                    def deploymentFile = 'java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml'
-                    def fileContent = readFile(deploymentFile).text
-                    fileContent = fileContent.replaceAll('replaceImageTag', '8')
-                    writeFile file: deploymentFile, text: fileContent
-
-                    // Add and commit changes
-                    sh 'git config user.email abhishek.xyz@gmail.com'
-                    sh 'git config user.name abhishek veeramalla'
-                    sh 'git add .'
-                    sh 'git commit -m "Update deployment image to version 8"''
-
-                    
+                    sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                    git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                    git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                    git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main 
                 }
                 '''
             }
